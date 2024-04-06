@@ -1,0 +1,4 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_auth_oauth_linked","access_auth_oauth_linked","model_auth_oauth_linked","base.group_portal",1,0,0,0
+"access_auth_oauth_linked_user","access_auth_oauth_linked_user","model_auth_oauth_linked","base.group_user",1,1,1,0
+"access_auth_oauth_linked_manager","access_auth_oauth_linked_manager","model_auth_oauth_linked","base.group_system",1,1,1,1

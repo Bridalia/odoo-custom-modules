@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_linked_oauth" name="Portal Linked OAuth" inherit_id="portal.portal_my_security">
+        <xpath expr="//section[@name='portal_change_password']" position="after">
+            <section name='portal_linked_oauth'>
+                <h4>Linked OAuth</h4>
+                <div class="alert alert-success" role="alert" t-if="link_oauth">
+                    <t t-out="link_oauth"/>
+                </div>
+                <div class="alert alert-danger" role="alert" t-if="link_oauth_error">
+                    <t t-out="link_oauth_error"/>
+                </div>
+                <t t-call="portal.portal_table">
+                    <thead>
+                        <tr class="active">
+                            <th>Provider</th>
+                            <th>OAuth UID</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <t t-if="env.user.oauth_provider_id">
+                        <tr>
+                            <td>
+                                <t t-out="env.user.oauth_provider_id.name"/>
+                            </td>
+                            <td>
+                                <t t-out="env.user.oauth_uid"/>
+                            </td>
+                            <td class="text-end">
+                                <t t-if="allow_unlink">
+                                    <button class="btn btn-secondary unlink_oauth" type="button" t-att-value="{'oauth_provider_id': env.user.oauth_provider_id.id, 'oauth_uid': env.user.oauth_uid, 'unlink': 'base'}">Unlink</button>
+                                </t>
+                            </td>
+                        </tr>
+                    </t>
+                    <t t-if="env.user.oauth_linked_ids">
+                        <t t-foreach="env.user.oauth_linked_ids" t-as="oauth_linked">
+                            <tr>
+                                <td>
+                                    <t t-out="oauth_linked.oauth_provider_id.name"/>
+                                </td>
+                                <td>
+                                    <t t-out="oauth_linked.oauth_uid"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-if="allow_unlink">
+                                        <button class="btn btn-secondary unlink_oauth" type="button" t-att-value="{'oauth_provider_id': oauth_linked.oauth_provider_id.id, 'oauth_uid': oauth_linked.oauth_uid, 'unlink': 'sub'}">Unlink</button>
+                                    </t>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-if="providers">
+                        <t t-foreach="providers" t-as="provider">
+                            <tr>
+                                <td>
+                                    <t t-out="provider['name']"/>
+                                </td>
+                                <td/>
+                                <td class="text-end">
+                                    <button class="btn btn-secondary linked_oauth" type="button" t-att-value="provider['auth_link']">Link</button>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </t>
+
+            </section>
+        </xpath>
+    </template>
+</odoo>
