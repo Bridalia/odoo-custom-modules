@@ -26,14 +26,13 @@ class ImexInventoryDetailsReport(models.Model):
     product_out = fields.Float(readonly=True)
     picking_id = fields.Many2one(comodel_name="stock.picking", readonly=True)
 
-    def name_get(self):
-        result = []
+    @api.depends('reference','picking_id.origin')
+    def _compute_display_name(self):
         for rec in self:
             name = rec.reference
             if rec.picking_id.origin:
                 name = "{} ({})".format(name, rec.picking_id.origin)
-            result.append((rec.id, name))
-        return result
+            rec.display_name = f"{name}"
 
     def _get_locations(self, location_id, is_groupby_location):
         if (location_id):
@@ -144,31 +143,19 @@ class ImexInventoryDetailsReport(models.Model):
             """CREATE VIEW {} as ({})""".format(self._table, query_), params)
         return res
 
-    # def print_report(self):
-    #     action = self.env.ref(
-    #         "imex_inventory_report.action_imex_inventory_details_report_pdf")
-    #     vals = action.sudo().read()[0]
-    #     context = vals.get("context", {})
-    #     if context:
-    #         context = safe_eval(context)
-    #     context["active_ids"] = self._context.get("active_ids")
-    #     context["details"] = self.browse(self._context.get("active_ids"))
-    #     vals["data"] = self._context.get("data")
-    #     vals["context"] = context
-    #     return vals
-
-    def _get_html(self):
-        result = {}
-        rcontext = {}
-        report = self.browse(self._context.get("active_ids"))
-        data = self._context.get("data")
-        if report:
-            rcontext["details"] = report
-            rcontext["data"] = data
-            result["html"] = self.env['ir.qweb']._render(
-                "imex_inventory_report.imex_inventory_details_report", rcontext)
-        return result
-
-    @api.model
-    def get_html(self, given_context=None):
-        return self.with_context(**(given_context or {}))._get_html()
+    def view_report_details(self, filters):
+        report = self.env["imex.inventory.report.wizard"].create(filters)        
+        #init details view
+        self.env["imex.inventory.details.report"].init_results(report)
+        #search all details view records
+        details = self.env["imex.inventory.details.report"].search([])
+        data = {
+            'product_default_code': report.product_ids.default_code,
+            'product_name': report.product_ids.name,
+            'date_from': report.date_from or None,
+            'date_to': report.date_to or fields.Date.context_today(self),
+            'location': report.location_id.complete_name or None,
+            'category': report.product_ids.categ_id.complete_name or None,
+            'detail_ids': details.ids,
+        }
+        return self.env.ref('imex_inventory_report.action_imex_inventory_details_report_html').with_context(active_model="imex.inventory.details.report").report_action(details.ids,data=data)

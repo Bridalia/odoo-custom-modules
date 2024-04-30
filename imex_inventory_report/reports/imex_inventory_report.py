@@ -92,17 +92,17 @@ class ImexInventoryReport(models.Model):
                 internal_picking_type = (-1,)
         return internal_picking_type
 
-    def init_results(self, filter_fields):
-        date_from = filter_fields.date_from or "1900-01-01"
-        date_to = filter_fields.date_to or fields.Date.context_today(self)
-        is_groupby_location = filter_fields.is_groupby_location
+    def init_results(self, filters):
+        date_from = filters.date_from or "1900-01-01"
+        date_to = filters.date_to or fields.Date.context_today(self)
+        is_groupby_location = filters.is_groupby_location
 
         locations, count_internal_transfer = self._get_locations(
-            filter_fields.location_id, is_groupby_location)
+            filters.location_id, is_groupby_location)
         product_category_ids = self._get_product_category_ids(
-            filter_fields.product_category_ids)
+            filters.product_category_ids)
         product_ids = self._get_product_ids(
-            filter_fields.product_ids, filter_fields.product_category_ids)
+            filters.product_ids, filters.product_category_ids)
         internal_picking_type = self._get_internal_picking_type(
             is_groupby_location)
 
@@ -335,28 +335,6 @@ class ImexInventoryReport(models.Model):
         return res
 
     def report_details(self):
-        vals = {}
         filters = self._context.get("filters")
         filters["product_ids"] = [(6, 0, self.product_id.ids)]
-        report = self.env["imex.inventory.report.wizard"].create(
-            self._context.get("filters"))
-        init = self.env["imex.inventory.details.report"].init_results(report)
-        details = self.env["imex.inventory.details.report"].search([])
-        action = self.env.ref(
-            'imex_inventory_report.action_imex_inventory_details_report')
-        vals = action.sudo().read()[0]
-        context = vals.get("context", {})
-        if context:
-            context = safe_eval(context)
-        context["active_ids"] = details.ids
-        data = {
-            'product_default_code': report.product_ids.default_code,
-            'product_name': report.product_ids.name,
-            'date_from': report.date_from or None,
-            'date_to': report.date_to or fields.Date.context_today(self),
-            'location': report.location_id.complete_name or None,
-            'category': report.product_ids.categ_id.complete_name or None,
-        }
-        context["data"] = data
-        vals["context"] = context
-        return vals
+        return self.env["imex.inventory.details.report"].view_report_details(filters)

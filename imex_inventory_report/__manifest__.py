@@ -10,10 +10,10 @@
     """,
     "license": "LGPL-3",
     'author': "Jason Vu",
-    'website': "https://github.com/longvm91/odoo-custom-modules/tree/16.0/imex_inventory_report",
+    'website': "https://github.com/longvm91/odoo-custom-modules/tree/17.0/imex_inventory_report",
     'email': "longvm91@gmail.com",
     'category': 'Warehouse',
-    'version': '16.0.1.3.0',
+    'version': '17.0.1.4.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'stock', 'stock_account', 'product'],
@@ -29,7 +29,6 @@
     "assets": {
         "web.assets_backend": [
             "imex_inventory_report/static/src/css/**/*",
-            "imex_inventory_report/static/src/js/**/*",
         ],
     },
     "installable": True,
