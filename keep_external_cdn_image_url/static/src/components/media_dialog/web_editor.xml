@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="web_editor.FileSelectorControlPanel" t-inherit-mode="extension">
+        <xpath expr="//input[hasclass('o_we_url_input')]" position="before">
+            <input style="margin: 8px 0px; width: 15px; height: 15px" class="form-check-input" id="keep-external-cdn-image-url" type="checkbox"/>
+            <label style="margin: 5px; font-weight: 700" for="keep-external-cdn-image-url">Keep URL</label>
+        </xpath>
+    </t>
+</templates>
